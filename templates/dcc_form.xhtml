@@ -1,0 +1,139 @@
+<?xml-stylesheet href="https://realpython-example-app100.herokuapp.com/xsltforms/xsltforms.xsl" type="text/xsl"?>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:ev="http://www.w3.org/2001/xml-events"
+      xmlns:xf="http://www.w3.org/2002/xforms">
+  <head>
+    <title>DCC</title>
+    <xf:model id="model1">
+      <xf:instance id="dcc">
+      <dcc:digitalCalibrationCertificate
+      xmlns:dcc="https://ptb.de/dcc"
+      xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+      xmlns:si="https://ptb.de/si"
+      xmlns=""
+      schemaVersion="3.0.0"
+      xsi:schemaLocation="https://ptb.de/dcc https://ptb.de/dcc/v3.0.0/dcc.xsd">
+        <dcc:administrativeDataType>
+
+          <dcc:dccSoftware>
+            <dcc:software>
+              <dcc:name>
+                <dcc:content/>
+              </dcc:name>
+              <dcc:release/>
+            </dcc:software>
+          </dcc:dccSoftware>
+
+          <dcc:coreData>
+            <dcc:countryCodeISO3166_1/>
+            <dcc:usedLangCodeISO639_1/>
+            <dcc:mandatoryLangCodeISO639_1/>
+            <dcc:uniqueIdentifier/>
+            <dcc:receiptDate/>
+            <dcc:beginPerformanceDate/>
+            <dcc:endPerformanceDate/>
+            <dcc:performanceLocation/>
+          </dcc:coreData>
+        </dcc:administrativeDataType>
+     	 </dcc:digitalCalibrationCertificate>
+      </xf:instance>
+
+      <xf:instance id="dcc-software-template">
+          <dcc:software xmlns:dcc="https://ptb.de/dcc">
+            <dcc:name>
+              <dcc:content/>
+            </dcc:name>
+            <dcc:release/>
+          </dcc:software>
+      </xf:instance>
+
+      <xf:bind ref="*//dcc:countryCodeISO3166_1" type="string" required="true()"/>
+      <xf:bind ref="*//dcc:usedLangCodeISO639_1" type="string"/>
+      <xf:bind ref="*//dcc:receiptDate" type="date"/>
+      <xf:bind ref="*//dcc:beginPerformanceDate" type="date"/>
+      <xf:bind ref="*//dcc:endPerformanceDate" type="date"/>
+      <xf:bind ref="*//dcc:content" type="string"/>
+      <xf:bind ref="*//dcc:release" type="string"/>
+      <xf:submission id="s01" method="post"
+                     action="http://localhost:5000/" />
+    </xf:model>
+  </head>
+  <body>
+    <h1>Certificado de Calibracion Digital</h1>
+
+    <xf:select1 ref="*//dcc:countryCodeISO3166_1">
+      <xf:label>País</xf:label>
+      <xf:item>
+        <xf:label>Argentina</xf:label>
+        <xf:value>AR</xf:value>
+      </xf:item>
+      <xf:item>
+        <xf:label>Deutschland</xf:label>
+        <xf:value>DE</xf:value>
+      </xf:item>
+    </xf:select1>
+
+    <br></br>
+
+    <xf:group ref="instance('dcc')">
+      <xf:group ref="dcc:administrativeDataType">
+
+        <xf:group ref="dcc:dccSoftware">
+          <fieldset>
+            <legend>Software</legend>
+            <xf:repeat nodeset="dcc:software">
+              <xf:input ref="dcc:name/dcc:content">
+                <xf:label>Nombre del Software Utilizado</xf:label>
+              </xf:input>
+              <xf:input ref="dcc:release">
+                <xf:label>Version del software</xf:label>
+              </xf:input>
+              <xf:trigger>
+                <xf:label>Borrar</xf:label>
+                <xf:delete ev:event="DOMActivate" nodeset="." at="1"/>
+              </xf:trigger>
+              <br></br>
+            </xf:repeat>
+          </fieldset>
+          <xf:trigger>
+            <xf:label>Agregar Software</xf:label>
+             <xf:action ev:event="DOMActivate">
+              <xf:insert
+                      origin="instance('dcc-software-template')"
+                      nodeset="dcc:software"
+                      position="after"
+                      at="count(dcc:software)"/>
+                      <!--<xf:setvalue ref="dcc:software[last()]/dcc:name/dcc:content" value="'Software name'"/>
+                      <xf:setvalue ref="dcc:software[last()]/dcc:release" value="'Software version'"/>-->
+             </xf:action>
+          </xf:trigger>
+        </xf:group>
+
+        <xf:group ref="dcc:coreData">
+          <fieldset>
+            <legend>Idiomas</legend>
+            <xf:repeat ref="dcc:usedLangCodeISO639_1">
+              <xf:input ref="."/>
+            </xf:repeat>
+          </fieldset>
+          <xf:trigger>
+            <xf:label>Agregar Idioma</xf:label>
+             <xf:action ev:event="DOMActivate">
+              <xf:insert ref="dcc:usedLangCodeISO639_1"/>
+              <xf:setvalue ref="dcc:usedLangCodeISO639_1[last()]"/>
+             </xf:action>
+          </xf:trigger>
+        </xf:group>
+      </xf:group>
+    </xf:group>
+
+    <br></br>
+
+    <xf:submit submission="s01">
+      <xf:label>Save</xf:label>
+      <xf:hint>Click here to save new order.</xf:hint>
+    </xf:submit>
+
+    <p>Click "Save" to store entered orders.</p>
+  </body>
+</html>
